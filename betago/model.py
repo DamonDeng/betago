@@ -24,6 +24,8 @@ class HTTPFrontend(object):
         self.bot = bot
         self.port = port
         self.homePage = homePage
+        self.auto_play = False
+        self.auto_player = 1  # default player is black
 
     def start_server(self):
         ''' Start Go model server '''
@@ -79,7 +81,26 @@ class HTTPFrontend(object):
                 # Add row to board
                 board[row] = board_row
             board_init = str(board) # lazy convert list to JSON
+
+            # home_html = open(self.homePage).read()
+            # home_html = home_html.replace('"__i__"', 'var boardInit = ' + board_init)
+            # auto_play_string = ""
+            # auto_player_string = ""
+
+            # if self.auto_play:
+            #     auto_play_string = "var auto_bot = true;"    
+            # else: 
+            #     auto_play_string = "var auto_bot = false;"
             
+
+            # if self.auto_player == 1:
+            #     auto_player_string = "var auto_player = 'b';"    
+            # else:
+            #     auto_player_string = "var auto_player = 'w';"
+            
+            # home_html = home_html.replace('"__j__"', auto_play_string + auto_player_string)
+            # return home_html
+
             return open(self.homePage).read().replace('"__i__"', 'var boardInit = ' + board_init) # output the modified HTML file
 
         @app.route('/sync', methods=['GET', 'POST'])
@@ -107,6 +128,59 @@ class HTTPFrontend(object):
             result = {'i': bot_col, 'j': bot_row}
             json_result = jsonify(**result)
             return json_result
+
+        @app.route('/prediction_b', methods=['GET', 'POST'])
+        def next_move_b():
+            '''Predict next black move and send to client.
+
+            Parses the move and hands the work off to the bot.
+            '''
+            
+            bot_row, bot_col = self.bot.select_move('b')
+            print('Prediction b:')
+            print((bot_col, bot_row))
+
+            self.auto_player = 2
+
+            result = {'i': bot_col, 'j': bot_row}
+            json_result = jsonify(**result)
+            return json_result
+
+        @app.route('/prediction_w', methods=['GET', 'POST'])
+        def next_move_w():
+            '''Predict next black move and send to client.
+
+            Parses the move and hands the work off to the bot.
+            '''
+            
+            bot_row, bot_col = self.bot.select_move('w')
+            print('Prediction w:')
+            print((bot_col, bot_row))
+
+            self.auto_player = 1
+
+            result = {'i': bot_col, 'j': bot_row}
+            json_result = jsonify(**result)
+            return json_result
+
+        # @app.route('/start_auto_bot', methods=['GET', 'POST'])
+        # def start_auto_bot():
+            
+        #     self.auto_play = True
+            
+        #     result = {}
+        #     result["result"] = "Success"
+        #     return jsonify(**result)
+
+        # @app.route('/stop_auto_bot', methods=['GET', 'POST'])
+        # def stop_auto_bot():
+            
+        #     self.auto_play = False
+            
+        #     result = {}
+        #     result["result"] = "Success"
+        #     return jsonify(**result)
+
 
         @app.route('/reset', methods=['GET', 'POST'])
         def reset():
