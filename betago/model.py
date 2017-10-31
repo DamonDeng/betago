@@ -20,9 +20,10 @@ class HTTPFrontend(object):
     go moves.
     '''
 
-    def __init__(self, bot, port=8080):
+    def __init__(self, bot, port=8080, homePage="ui/demoBot.html"):
         self.bot = bot
         self.port = port
+        self.homePage = homePage
 
     def start_server(self):
         ''' Start Go model server '''
@@ -48,9 +49,19 @@ class HTTPFrontend(object):
         def static_file_large(path):
             return open("ui/large/" + path).read()
 
+        @app.route('/medium/<path:path>')
+        def static_file_medium(path):
+            return open("ui/medium/" + path).read()
+
+        @app.route('/lib/<path:path>')
+        def static_file_lib(path):
+            return open("ui/lib/" + path).read()
+
+
         @app.route('/')
         def home():
             # Inject game data into HTML
+            # print("in home function")
             board_init = 'initialBoard = ""' # backup variable
             board = {}
             for row in range(19):
@@ -69,7 +80,7 @@ class HTTPFrontend(object):
                 board[row] = board_row
             board_init = str(board) # lazy convert list to JSON
             
-            return open("ui/demoBot.html").read().replace('"__i__"', 'var boardInit = ' + board_init) # output the modified HTML file
+            return open(self.homePage).read().replace('"__i__"', 'var boardInit = ' + board_init) # output the modified HTML file
 
         @app.route('/sync', methods=['GET', 'POST'])
         def exportJSON():
@@ -97,6 +108,15 @@ class HTTPFrontend(object):
             json_result = jsonify(**result)
             return json_result
 
+        @app.route('/reset', methods=['GET', 'POST'])
+        def reset():
+            # reset the model to init state
+            print('Reseting board')
+            self.bot.reset_board()
+            result = {}
+            result["result"] = "Success"
+            return jsonify(**result)
+
         self.app.run(host='0.0.0.0', port=self.port, debug=True, use_reloader=False)
 
 
@@ -115,6 +135,9 @@ class GoModel(object):
         self.processor = processor
         self.go_board = GoBoard(19)
         self.num_planes = processor.num_planes
+    
+    def reset_board(self):
+        self.go_board = GoBoard(19)
 
     def set_board(self, board):
         '''Set the board to a specific state.'''

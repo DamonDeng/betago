@@ -32,5 +32,5 @@ args = parser.parse_args()
 # Open web frontend and serve model
 webbrowser.open('http://{}:{}/'.format(args.host, args.port), new=2)
 go_model = KerasBot(model=model, processor=processor)
-go_server = HTTPFrontend(bot=go_model, port=args.port)
+go_server = HTTPFrontend(bot=go_model, port=args.port, homePage="ui/demoBot.html")
 go_server.run()

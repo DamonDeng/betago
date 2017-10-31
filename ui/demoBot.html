@@ -4,6 +4,13 @@
 <head>
   <meta charset="utf-8">
   <title>BetaGo user interface</title>
+  <link rel="stylesheet" href="medium/mainBot.css" type="text/css">
+  <script src="lib/jquery.min.js"></script>
+  <script>
+  
+  </script>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
   <style>
     body {
       text-align: center;
@@ -18,16 +25,51 @@
 
 <body>
 
-  <h1> BetaGo </h1>
-  <div id="board"></div>
-  <div>
-    <p>Click to play.</p>
-  </div>
+  
+  
+  
+    <div style="display:inline;">
+      <div style="float:left; width:60%">
+          <div id="board" style="float:center; width:80%">
+              
+            </div>
+      </div>
+
+      <div style="float:right; width:40%; font-size:50px">
+          <div style="float:center; width:80%">
+          <div style="float:left;">
+              <br>
+              <br>
+              <a href="#" onclick="reset_board(); return false;">Restart</a>
+              <br>
+              <br>
+              <a href="#" onclick="alert('second click'); restart(); move(0); return false;"><i class="fa fa-fast-backward"></i></a>
+              <a href="#" onclick="move(-10); return false;"><i class="fa fa-backward"></i></a>
+              <a href="#" onclick="move(-1); return false;"><i class="fa fa-step-backward"></i></a>
+              <strong id="move">1</strong> / <strong id="moves">1</strong>
+              <a href="#" onclick="move(1); return false;"><i class="fa fa-step-forward"></i></a>
+              <a href="#" onclick="move(10); return false;"><i class="fa fa-forward"></i></a>
+              <a href="#" onclick="move(1000); return false;"><i class="fa fa-fast-forward"></i></a>
+              <br>
+              <br>
+              Variation: <strong id="variation">1</strong> / <strong id="variations">1</strong>
+              <a href="#" onclick="nextVariation(); return false;"><i title="variation" class="fa fa-arrows-v"></i></a>
+             
+                
+            </div>
+          </div>
+        
+          
+      </div>
+        
+    </div>
+  
 
   <script type="text/javascript" src="dist/jgoboard-latest.js"></script>
   <script type="text/javascript" src="large/board.js"></script>
   <script type="text/javascript">"__i__";</script>
   <script type="text/javascript">
+    //alert("starting the init job");
     /*global JGO boardInit*/
     var jboard = new JGO.Board(19);
     var jsetup = new JGO.Setup(jboard, JGO.BOARD.largeWalnut);
@@ -46,6 +88,33 @@
       jboard.setRaw(boardRaw); // Set it and forget it®
     } else {
       // alert that this data is missing
+    }
+
+    
+
+    function reset_board(){
+      
+      sendToServer('/reset', 'data',
+            function(data) {
+              console.log("Recieved reset response from server:"); 
+              location.reload();        
+            });
+      
+    }
+
+    function sendToServer(url, data, success){
+      var xmlhttp;
+      xmlhttp = new XMLHttpRequest();
+      xmlhttp.open("POST", url, false);
+      // Note that we force a synchronous call here, bad karma.
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState > 3 && xmlhttp.status == 200) {
+          success(xmlhttp.responseText);
+        }
+      };
+      xmlhttp.setRequestHeader("Content-Type", "application/json");
+      xmlhttp.send(JSON.stringify(data));
+      return xmlhttp;
     }
 
     function playMove(coord, player, ko, success, failure) {
@@ -96,6 +165,14 @@
       xmlhttp.send(JSON.stringify(data));
       return xmlhttp;
     }
+
+    // Same function with postMove, 
+    // While it is not wise to keep the name postMove, as we are going to send other data to server.
+    // function sendToServerABCD() {
+    //   alert("Sent data to server!");
+    //   console.log("Sent data to server!");
+      
+    // }
 
 
     jboard.setType(JGO.util.getHandicapCoordinates(jboard.width, 0), JGO.BLACK);
