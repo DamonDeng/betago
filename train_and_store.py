@@ -6,8 +6,10 @@ from keras.utils import np_utils
 
 from betago.processor import SevenPlaneProcessor
 
-batch_size = 128
-nb_epoch = 100
+print ('start to train')
+
+batch_size = 32
+nb_epoch = 10
 
 nb_classes = 19 * 19  # One class for each position on the board
 go_board_rows, go_board_cols = 19, 19  # input dimensions of go board
@@ -20,7 +22,7 @@ processor = SevenPlaneProcessor()
 input_channels = processor.num_planes
 
 # Load go data and one-hot encode labels
-X, y = processor.load_go_data(num_samples=1000)
+X, y = processor.load_go_data(num_samples=10)
 X = X.astype('float32')
 Y = np_utils.to_categorical(y, nb_classes)
 
@@ -43,6 +45,7 @@ model.add(Dense(nb_classes))
 model.add(Activation('softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adadelta', metrics=['accuracy'])
 
+
 print ('before training')
 model.fit(X, Y, batch_size=batch_size, epochs=nb_epoch, verbose=1)
 print ('after training')
@@ -51,8 +54,3 @@ weight_file = '../model_zoo/weights.hd5'
 model.save_weights(weight_file, overwrite=True)
 
 print ('After save')
-
-model_file = '../model_zoo/model.yml'
-with open(model_file, 'w') as yml:
-    model_yaml = model.to_yaml()
-    yml.write(model_yaml)

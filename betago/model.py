@@ -81,26 +81,6 @@ class HTTPFrontend(object):
                 # Add row to board
                 board[row] = board_row
             board_init = str(board) # lazy convert list to JSON
-
-            # home_html = open(self.homePage).read()
-            # home_html = home_html.replace('"__i__"', 'var boardInit = ' + board_init)
-            # auto_play_string = ""
-            # auto_player_string = ""
-
-            # if self.auto_play:
-            #     auto_play_string = "var auto_bot = true;"    
-            # else: 
-            #     auto_play_string = "var auto_bot = false;"
-            
-
-            # if self.auto_player == 1:
-            #     auto_player_string = "var auto_player = 'b';"    
-            # else:
-            #     auto_player_string = "var auto_player = 'w';"
-            
-            # home_html = home_html.replace('"__j__"', auto_play_string + auto_player_string)
-            # return home_html
-
             return open(self.homePage).read().replace('"__i__"', 'var boardInit = ' + board_init) # output the modified HTML file
 
         @app.route('/sync', methods=['GET', 'POST'])
@@ -163,23 +143,6 @@ class HTTPFrontend(object):
             json_result = jsonify(**result)
             return json_result
 
-        # @app.route('/start_auto_bot', methods=['GET', 'POST'])
-        # def start_auto_bot():
-            
-        #     self.auto_play = True
-            
-        #     result = {}
-        #     result["result"] = "Success"
-        #     return jsonify(**result)
-
-        # @app.route('/stop_auto_bot', methods=['GET', 'POST'])
-        # def stop_auto_bot():
-            
-        #     self.auto_play = False
-            
-        #     result = {}
-        #     result["result"] = "Success"
-        #     return jsonify(**result)
 
 
         @app.route('/reset', methods=['GET', 'POST'])

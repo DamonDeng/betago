@@ -6,7 +6,7 @@ import os
 import webbrowser
 
 from keras.models import model_from_yaml
-from betago.model import HTTPFrontend, KerasBot
+from betago.model import HTTPFrontend, KerasBot, RandomizedKerasBot
 from betago.processor import SevenPlaneProcessor
 
 processor = SevenPlaneProcessor()
@@ -31,6 +31,8 @@ args = parser.parse_args()
 
 # Open web frontend and serve model
 webbrowser.open('http://{}:{}/'.format(args.host, args.port), new=2)
-go_model = KerasBot(model=model, processor=processor)
+# go_model = KerasBot(model=model, processor=processor)
+go_model = RandomizedKerasBot(model=model, processor=processor)
+
 go_server = HTTPFrontend(bot=go_model, port=args.port, homePage="ui/demoBot.html")
 go_server.run()
